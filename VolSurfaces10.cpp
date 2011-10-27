@@ -15,7 +15,7 @@
 #include "DXUTsettingsDlg.h"
 #include "SDKmisc.h"
 #include "SDKMesh.h"
-#include "VSObject.h"
+#include "VSCombinedObject.h"
 #include "resource.h"
 #include <string>
 
@@ -39,7 +39,7 @@ CDXUTTextHelper*        g_pTxtHelper = NULL;
 ID3D10Device*			g_device = NULL;
 ID3DX10Font*            g_pFont10 = NULL;       
 ID3DX10Sprite*          g_pSprite10 = NULL;
-VSObject*				g_vsObj;
+VSCombinedObject*		g_vsCombinedObj;
 ID3D10RasterizerState*	g_pRasterState;
 ID3D10Effect*           g_pEffect10 = NULL;
 
@@ -274,9 +274,9 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
         case IDC_CHANGEDEVICE:     g_D3DSettingsDlg.SetActive( !g_D3DSettingsDlg.IsActive() ); break;
  
  		case IDC_DIFF_STEPS: 
-			g_vsObj->diffSteps = g_SampleUI.GetSlider( IDC_DIFF_STEPS )->GetValue();
+			g_vsCombinedObj->diffSteps = g_SampleUI.GetSlider( IDC_DIFF_STEPS )->GetValue();
             WCHAR sz[100];
-            StringCchPrintf( sz, 100, L"Diffusion steps: %d", g_vsObj->diffSteps ); 
+            StringCchPrintf( sz, 100, L"Diffusion steps: %d", g_vsCombinedObj->diffSteps ); 
             g_SampleUI.GetStatic( IDC_DIFF_STEPS_STATIC )->SetText( sz );
             break;
 	}
@@ -329,7 +329,7 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
     // Setup the vector image and the display
 	UINT width = ( DXUTIsAppRenderingWithD3D9() ) ? DXUTGetD3D9BackBufferSurfaceDesc()->Width : DXUTGetDXGIBackBufferSurfaceDesc()->Width;
 	UINT height = ( DXUTIsAppRenderingWithD3D9() ) ? DXUTGetD3D9BackBufferSurfaceDesc()->Height : DXUTGetDXGIBackBufferSurfaceDesc()->Height;
-	g_vsObj = new VSObject(pd3dDevice); 
+	g_vsCombinedObj = new VSCombinedObject(pd3dDevice); 
 
     D3D10_RASTERIZER_DESC rasterizerState;
     rasterizerState.FillMode = D3D10_FILL_SOLID;
@@ -372,7 +372,7 @@ HRESULT CALLBACK OnD3D10ResizedSwapChain( ID3D10Device* pd3dDevice, IDXGISwapCha
 	// resize the texture so that it fits to the current screen size
 	UINT width = ( DXUTIsAppRenderingWithD3D9() ) ? DXUTGetD3D9BackBufferSurfaceDesc()->Width : DXUTGetDXGIBackBufferSurfaceDesc()->Width;
 	UINT height = ( DXUTIsAppRenderingWithD3D9() ) ? DXUTGetD3D9BackBufferSurfaceDesc()->Height : DXUTGetDXGIBackBufferSurfaceDesc()->Height;
-	g_vsObj->SetupTextures(pd3dDevice, g_pEffect10, width, height);
+	g_vsCombinedObj->SetupTextures(pd3dDevice, g_pEffect10, width, height);
     return S_OK;
 }
 
@@ -393,11 +393,11 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 
     if( g_Camera.m_nMouseWheelDelta && g_Camera.m_nZoomButtonMask == MOUSE_WHEEL )
 	{
-		g_vsObj->m_pan /= g_vsObj->m_scale;
-	   	g_vsObj->m_scale += g_vsObj->m_scale*g_Camera.m_nMouseWheelDelta * 0.2;
-		g_vsObj->m_pan *= g_vsObj->m_scale;
+		g_vsCombinedObj->m_pan /= g_vsCombinedObj->m_scale;
+	   	g_vsCombinedObj->m_scale += g_vsCombinedObj->m_scale*g_Camera.m_nMouseWheelDelta * 0.2;
+		g_vsCombinedObj->m_pan *= g_vsCombinedObj->m_scale;
 	    g_Camera.m_nMouseWheelDelta = 0;
-		g_vsObj->m_scale = max(0.01, g_vsObj->m_scale);
+		g_vsCombinedObj->m_scale = max(0.01, g_vsCombinedObj->m_scale);
 	}
 
 	if ((!g_Camera.IsMouseRButtonDown()) && (g_mouseLButtonDown == true))
@@ -414,16 +414,16 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 		float ff = 1.0f;
 		if (g_Camera.IsMouseRButtonDown())
 			ff = 0.127f; 
-		float xFac = ff*4.0f/g_vsObj->m_sizeX;
-		float yFac = ff*4.0f/g_vsObj->m_sizeY;
-		g_vsObj->m_pan += D3DXVECTOR2(xFac*g_Camera.m_vMouseDelta.x,-yFac*g_Camera.m_vMouseDelta.y);
+		float xFac = ff*4.0f/g_vsCombinedObj->m_sizeX;
+		float yFac = ff*4.0f/g_vsCombinedObj->m_sizeY;
+		g_vsCombinedObj->m_pan += D3DXVECTOR2(xFac*g_Camera.m_vMouseDelta.x,-yFac*g_Camera.m_vMouseDelta.y);
 		g_Camera.m_vMouseDelta.x = 0;
 		g_Camera.m_vMouseDelta.y = 0;
 	}
 	
-	g_vsObj->m_polySize = 2.3; //render each polygon in full screen size
-	g_vsObj->RenderDiffusion(pd3dDevice);
-	g_vsObj->Render(pd3dDevice);
+	g_vsCombinedObj->m_polySize = 2.3; //render each polygon in full screen size
+	g_vsCombinedObj->RenderDiffusion(pd3dDevice);
+	g_vsCombinedObj->Render(pd3dDevice);
 
 	if (g_showMenue)
 	{
@@ -458,7 +458,7 @@ void CALLBACK OnD3D10DestroyDevice( void* pUserContext )
     SAFE_RELEASE( g_pFont10 );
     SAFE_RELEASE( g_pSprite10 );
     SAFE_RELEASE( g_pEffect10 );
-	SAFE_DELETE( g_vsObj );
+	SAFE_DELETE( g_vsCombinedObj );
 }
 
 

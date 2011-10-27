@@ -48,6 +48,7 @@
     </ClInclude>
     <ClInclude Include="Globals.h" />
     <ClInclude Include="VSObject.h" />
+    <ClInclude Include="VSCombinedObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VolSurfaces10.rc">
@@ -84,6 +85,7 @@
     </ClCompile>
     <ClCompile Include="VolSurfaces10.cpp" />
     <ClCompile Include="VSObject.cpp" />
+    <ClCompile Include="VSCombinedObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuildStep Include="VolSurfaces10.manifest">

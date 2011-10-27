@@ -84,7 +84,7 @@ VSObject::~VSObject(void)
 
 
 
-void VSObject::RenderDiffusion(ID3D10Device *pd3dDevice)
+/*void VSObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 {
 	HRESULT hr;
 	D3D10_TECHNIQUE_DESC techDesc;
@@ -149,14 +149,14 @@ void VSObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 	{
 		// SA strategy
 		V( m_pPolySize->SetFloat( 1.0 -(float)(i)/(float)diffSteps ) );
-		// SH strategy
+*/		// SH strategy
 /*		V( m_pPolySize->SetFloat( 1.0 ) );
 		if (i>diffSteps-diffSteps/2)
 		{
 			V( m_pPolySize->SetFloat( (float)(diffSteps-i)/(float)(diffSteps/2) ) );
 		}
 */
-		pd3dDevice->OMSetRenderTargets( 1, &m_diffuseTextureTV[1-diffTex], NULL );
+/*		pd3dDevice->OMSetRenderTargets( 1, &m_diffuseTextureTV[1-diffTex], NULL );
 		V( m_pInTex[0]->SetResource( m_diffuseTextureRV[diffTex] ) );
 		V( m_pInTex[1]->SetResource( m_distDirTextureRV ) );
 		diffTex = 1-diffTex;
@@ -185,12 +185,12 @@ void VSObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 	pd3dDevice->OMSetRenderTargets( 1,  &old_pRTV,  old_pDSV );
 	pd3dDevice->RSSetViewports( NumViewports, &pViewports[0]);
 }
-
+*/
 
 
 
 // this renders the final image to the screen
-void VSObject::Render(ID3D10Device *pd3dDevice)
+/*void VSObject::Render(ID3D10Device *pd3dDevice)
 {
 	HRESULT hr;
 	// Create the input layout
@@ -216,7 +216,7 @@ void VSObject::Render(ID3D10Device *pd3dDevice)
 		m_pDisplayImage->GetPassByIndex( p )->Apply(0);
 		pd3dDevice->Draw( 3*m_pMeshDiff->GetFaceCount(), 0 );
 	}
-}
+}*/
 
 
 
@@ -228,7 +228,7 @@ bool stringStartsWith(const char *s, const char *val)
 
 
 
-void VSObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10, int sizeX, int sizeY)
+/*void VSObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10, int sizeX, int sizeY)
 {
 	HRESULT hr;
 
@@ -341,7 +341,7 @@ void VSObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10
 		ReadVectorFile( &s[0] );
 		ConstructCurves(pd3dDevice);
 	}
-}
+}*/
 
 
 
@@ -524,7 +524,7 @@ void VSObject::ReadVectorFile( char *s )
 
 
 // convert the vectors into triangle strips and draw these to the finest pyramid level
-void VSObject::ConstructCurves(ID3D10Device *pd3dDevice)
+/*void VSObject::ConstructCurves(ID3D10Device *pd3dDevice)
 {
 	D3DXVECTOR2	pLoop;
 	int	iLoopStart;
@@ -672,4 +672,4 @@ void VSObject::ConstructCurves(ID3D10Device *pd3dDevice)
 	StringCchPrintf( wcFileInfo, 512, L"(INFO) : Number of curve segments: %d \n", m_cSegNum*(int)(subSegNum)*10);
 	OutputDebugString( wcFileInfo );
 
-}
+}*/

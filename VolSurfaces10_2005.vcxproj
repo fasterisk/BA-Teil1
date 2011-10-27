@@ -191,6 +191,7 @@
     <ClInclude Include="DXUT\Optional\SDKmesh.h" />
     <ClInclude Include="DXUT\Optional\SDKmisc.h" />
     <ClInclude Include="Globals.h" />
+    <ClInclude Include="VSCombinedObject.h" />
     <ClInclude Include="VSObject.h" />
   </ItemGroup>
   <ItemGroup>
@@ -214,6 +215,7 @@
     <ClCompile Include="DXUT\Optional\SDKmesh.cpp" />
     <ClCompile Include="DXUT\Optional\SDKmisc.cpp" />
     <ClCompile Include="VolSurfaces10.cpp" />
+    <ClCompile Include="VSCombinedObject.cpp" />
     <ClCompile Include="VSObject.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
