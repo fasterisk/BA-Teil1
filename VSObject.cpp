@@ -228,7 +228,7 @@ bool stringStartsWith(const char *s, const char *val)
 
 
 
-/*void VSObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10, int sizeX, int sizeY)
+void VSObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10, int sizeX, int sizeY)
 {
 	HRESULT hr;
 
@@ -341,7 +341,7 @@ bool stringStartsWith(const char *s, const char *val)
 		ReadVectorFile( &s[0] );
 		ConstructCurves(pd3dDevice);
 	}
-}*/
+}
 
 
 
@@ -524,7 +524,7 @@ void VSObject::ReadVectorFile( char *s )
 
 
 // convert the vectors into triangle strips and draw these to the finest pyramid level
-/*void VSObject::ConstructCurves(ID3D10Device *pd3dDevice)
+void VSObject::ConstructCurves(ID3D10Device *pd3dDevice)
 {
 	D3DXVECTOR2	pLoop;
 	int	iLoopStart;
@@ -672,4 +672,4 @@ void VSObject::ReadVectorFile( char *s )
 	StringCchPrintf( wcFileInfo, 512, L"(INFO) : Number of curve segments: %d \n", m_cSegNum*(int)(subSegNum)*10);
 	OutputDebugString( wcFileInfo );
 
-}*/
+}

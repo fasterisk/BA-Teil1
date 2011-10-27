@@ -112,12 +112,14 @@ void VSCombinedObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 	D3D10_VIEWPORT pViewports[100];
 	pd3dDevice->RSGetViewports( &NumViewports, &pViewports[0]);
 
+	// Draw first object
+
 	// set the shader variables, they are valid through the whole rendering pipeline
-	V( g_pScale->SetFloat(m_scale) );
-	V( g_pPan->SetFloatVector(m_pan) );
-	V( m_pDiffX->SetFloat( m_sizeX ) );
-	V( m_pDiffY->SetFloat( m_sizeY ) );
-	V( m_pPolySize->SetFloat( m_polySize ) );
+	V( g_pScale->SetFloat(g_vsObj1->m_scale) );
+	V( g_pPan->SetFloatVector(g_vsObj1->m_pan) );
+	V( m_pDiffX->SetFloat( g_vsObj1->m_sizeX ) );
+	V( m_pDiffY->SetFloat( g_vsObj1->m_sizeY ) );
+	V( m_pPolySize->SetFloat( g_vsObj1->m_polySize ) );
 
 	// render the triangles to the highest input texture level (assuming they are already defined!)
 	ID3D10InputLayout* pCurveVertexLayout;
@@ -126,7 +128,7 @@ void VSCombinedObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 		return;
 	pd3dDevice->IASetInputLayout( pCurveVertexLayout );
   	ID3D10Buffer *pVertexBuffer;
-	V( m_pMeshCurves->GetDeviceVertexBuffer(0, &pVertexBuffer) );
+	V( g_vsObj1->m_pMeshCurves->GetDeviceVertexBuffer(0, &pVertexBuffer) );
 	stride = sizeof( CURVE_Vertex );
 	offset = 0;
 	pd3dDevice->IASetVertexBuffers( 0, 1, &pVertexBuffer, &stride, &offset );
@@ -143,8 +145,41 @@ void VSCombinedObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 	for(UINT p=0; p<techDesc.Passes; ++p)
 	{
 		m_pDrawVectorsTechnique->GetPassByIndex( p )->Apply(0);
-		pd3dDevice->Draw( m_pMeshCurves->GetVertexCount(), 0 );
+		pd3dDevice->Draw( g_vsObj1->m_pMeshCurves->GetVertexCount(), 0 );
 	}
+	
+	// Draw second object
+			
+	// set the shader variables, they are valid through the whole rendering pipeline
+	V( g_pScale->SetFloat(g_vsObj2->m_scale) );
+	V( g_pPan->SetFloatVector(g_vsObj2->m_pan) );
+	V( m_pDiffX->SetFloat( g_vsObj2->m_sizeX ) );
+	V( m_pDiffY->SetFloat( g_vsObj2->m_sizeY ) );
+	V( m_pPolySize->SetFloat( g_vsObj2->m_polySize ) );
+
+	// render the triangles to the highest input texture level (assuming they are already defined!)
+	
+	V( g_vsObj2->m_pMeshCurves->GetDeviceVertexBuffer(0, &pVertexBuffer) );
+	stride = sizeof(CURVE_Vertex );
+	offset = 0;
+	pd3dDevice->IASetVertexBuffers( 0, 1, &pVertexBuffer, &stride, &offset );
+	pd3dDevice->IASetPrimitiveTopology( D3D10_PRIMITIVE_TOPOLOGY_LINELIST );
+	pd3dDevice->RSSetViewports( 1, &m_vp );
+	
+	//construct the curve triangles in the geometry shader and render them directly
+
+	destTexTV[0] = m_diffuseTextureTV[1-diffTex];
+	destTexTV[1] = m_distDirTextureTV;
+	destTexTV[2] = m_otherTextureTV;
+	pd3dDevice->OMSetRenderTargets( 3, destTexTV, m_pDepthStencilView );
+	m_pDrawVectorsTechnique->GetDesc( &techDesc );
+	for(UINT p=0; p<techDesc.Passes; ++p)
+	{
+		m_pDrawVectorsTechnique->GetPassByIndex( p )->Apply(0);
+		pd3dDevice->Draw( g_vsObj2->m_pMeshCurves->GetVertexCount(), 0 );
+	}
+	
+
 	diffTex = 1-diffTex;
 	diff2Tex = 1-diff2Tex;
 
@@ -162,7 +197,7 @@ void VSCombinedObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 	for (int i=0; i<diffSteps; i++)
 	{
 		// SA strategy
-		V( m_pPolySize->SetFloat( 1.0 -(float)(i)/(float)diffSteps ) );
+		V( g_vsObj1->m_pPolySize->SetFloat( 1.0 -(float)(i)/(float)diffSteps ) );
 		// SH strategy
 /*		V( m_pPolySize->SetFloat( 1.0 ) );
 		if (i>diffSteps-diffSteps/2)
@@ -348,6 +383,8 @@ void VSCombinedObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_p
 		g_vsObj2->ReadVectorFile( &s2[0] );
 		CombineObjects();
 		ConstructCurves(pd3dDevice);
+		g_vsObj1->ConstructCurves(pd3dDevice);
+		g_vsObj2->ConstructCurves(pd3dDevice);
 	}
 }
 

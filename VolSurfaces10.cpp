@@ -373,6 +373,8 @@ HRESULT CALLBACK OnD3D10ResizedSwapChain( ID3D10Device* pd3dDevice, IDXGISwapCha
 	UINT width = ( DXUTIsAppRenderingWithD3D9() ) ? DXUTGetD3D9BackBufferSurfaceDesc()->Width : DXUTGetDXGIBackBufferSurfaceDesc()->Width;
 	UINT height = ( DXUTIsAppRenderingWithD3D9() ) ? DXUTGetD3D9BackBufferSurfaceDesc()->Height : DXUTGetDXGIBackBufferSurfaceDesc()->Height;
 	g_vsCombinedObj->SetupTextures(pd3dDevice, g_pEffect10, width, height);
+	g_vsCombinedObj->g_vsObj1->SetupTextures(pd3dDevice, g_pEffect10, width, height);
+	g_vsCombinedObj->g_vsObj2->SetupTextures(pd3dDevice, g_pEffect10, width, height);
     return S_OK;
 }
 
@@ -393,11 +395,11 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 
     if( g_Camera.m_nMouseWheelDelta && g_Camera.m_nZoomButtonMask == MOUSE_WHEEL )
 	{
-		g_vsCombinedObj->m_pan /= g_vsCombinedObj->m_scale;
-	   	g_vsCombinedObj->m_scale += g_vsCombinedObj->m_scale*g_Camera.m_nMouseWheelDelta * 0.2;
-		g_vsCombinedObj->m_pan *= g_vsCombinedObj->m_scale;
+		g_vsCombinedObj->g_vsObj1->m_pan /= g_vsCombinedObj->g_vsObj1->m_scale;
+	   	g_vsCombinedObj->g_vsObj1->m_scale += g_vsCombinedObj->g_vsObj1->m_scale*g_Camera.m_nMouseWheelDelta * 0.2;
+		g_vsCombinedObj->g_vsObj1->m_pan *= g_vsCombinedObj->g_vsObj1->m_scale;
 	    g_Camera.m_nMouseWheelDelta = 0;
-		g_vsCombinedObj->m_scale = max(0.01, g_vsCombinedObj->m_scale);
+		g_vsCombinedObj->g_vsObj1->m_scale = max(0.01, g_vsCombinedObj->g_vsObj1->m_scale);
 	}
 
 	if ((!g_Camera.IsMouseRButtonDown()) && (g_mouseLButtonDown == true))
@@ -414,9 +416,9 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 		float ff = 1.0f;
 		if (g_Camera.IsMouseRButtonDown())
 			ff = 0.127f; 
-		float xFac = ff*4.0f/g_vsCombinedObj->m_sizeX;
-		float yFac = ff*4.0f/g_vsCombinedObj->m_sizeY;
-		g_vsCombinedObj->m_pan += D3DXVECTOR2(xFac*g_Camera.m_vMouseDelta.x,-yFac*g_Camera.m_vMouseDelta.y);
+		float xFac = ff*4.0f/g_vsCombinedObj->g_vsObj1->m_sizeX;
+		float yFac = ff*4.0f/g_vsCombinedObj->g_vsObj1->m_sizeY;
+		g_vsCombinedObj->g_vsObj1->m_pan += D3DXVECTOR2(xFac*g_Camera.m_vMouseDelta.x,-yFac*g_Camera.m_vMouseDelta.y);
 		g_Camera.m_vMouseDelta.x = 0;
 		g_Camera.m_vMouseDelta.y = 0;
 	}
