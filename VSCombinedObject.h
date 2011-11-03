@@ -8,6 +8,9 @@ public:
 	VSObject *g_vsObj1;
 	VSObject *g_vsObj2;
 
+	VSObject *g_controlledObj;
+	bool g_Obj1IsControlled;
+
 	CComPtr<ID3DX10Mesh> m_pMeshDiff;
 	CComPtr<ID3DX10Mesh> m_pMeshCurves;
 
@@ -70,7 +73,6 @@ public:
 	void Render(ID3D10Device *pd3dDevice);
 	void RenderDiffusion(ID3D10Device *pd3dDevice);
 	void SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10, int sizeX, int sizeY);
-	void ConstructCurves(ID3D10Device *pd3dDevice);
 
-	void CombineObjects();
+	void ChangeControl();
 };

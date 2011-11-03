@@ -104,8 +104,7 @@ public:
 
 	BOOL CreateVertexBuffer(ID3D10Device* pd3dDevice);
 	BOOL CreateIndexBuffer(ID3D10Device *pd3dDevice);
-	void Render(ID3D10Device *pd3dDevice);
-	void RenderDiffusion(ID3D10Device *pd3dDevice);
+	
 	void SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10, int sizeX, int sizeY);
 	void ReadVectorFile( char *s );
 	void ConstructCurves(ID3D10Device *pd3dDevice);

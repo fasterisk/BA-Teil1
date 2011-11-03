@@ -81,151 +81,10 @@ VSObject::~VSObject(void)
 }
 
 
-
-
-
-/*void VSObject::RenderDiffusion(ID3D10Device *pd3dDevice)
-{
-	HRESULT hr;
-	D3D10_TECHNIQUE_DESC techDesc;
-    D3D10_PASS_DESC PassDesc;
-	UINT stride, offset;
-
-	//store the old render targets and viewports
-    ID3D10RenderTargetView* old_pRTV = DXUTGetD3D10RenderTargetView();
-    ID3D10DepthStencilView* old_pDSV = DXUTGetD3D10DepthStencilView();
-	UINT NumViewports = 1;
-	D3D10_VIEWPORT pViewports[100];
-	pd3dDevice->RSGetViewports( &NumViewports, &pViewports[0]);
-
-	// set the shader variables, they are valid through the whole rendering pipeline
-	V( g_pScale->SetFloat(m_scale) );
-	V( g_pPan->SetFloatVector(m_pan) );
-	V( m_pDiffX->SetFloat( m_sizeX ) );
-	V( m_pDiffY->SetFloat( m_sizeY ) );
-	V( m_pPolySize->SetFloat( m_polySize ) );
-
-	// render the triangles to the highest input texture level (assuming they are already defined!)
-	ID3D10InputLayout* pCurveVertexLayout;
-	m_pDrawVectorsTechnique->GetPassByIndex( 0 )->GetDesc( &PassDesc );
-	if( FAILED( pd3dDevice->CreateInputLayout( InputCurveElements, InputCurveElementCount, PassDesc.pIAInputSignature, PassDesc.IAInputSignatureSize, &pCurveVertexLayout ) ) )
-		return;
-	pd3dDevice->IASetInputLayout( pCurveVertexLayout );
-  	ID3D10Buffer *pVertexBuffer;
-	V( m_pMeshCurves->GetDeviceVertexBuffer(0, &pVertexBuffer) );
-	stride = sizeof( CURVE_Vertex );
-	offset = 0;
-	pd3dDevice->IASetVertexBuffers( 0, 1, &pVertexBuffer, &stride, &offset );
-	pd3dDevice->IASetPrimitiveTopology( D3D10_PRIMITIVE_TOPOLOGY_LINELIST );
-	pd3dDevice->RSSetViewports( 1, &m_vp );
-	pd3dDevice->ClearDepthStencilView( m_pDepthStencilView, D3D10_CLEAR_DEPTH, 1.0f, 0 );
-	//construct the curve triangles in the geometry shader and render them directly
-	ID3D10RenderTargetView *destTexTV[3];
-	destTexTV[0] = m_diffuseTextureTV[1-diffTex];
-	destTexTV[1] = m_distDirTextureTV;
-	destTexTV[2] = m_otherTextureTV;
-	pd3dDevice->OMSetRenderTargets( 3, destTexTV, m_pDepthStencilView );
-	m_pDrawVectorsTechnique->GetDesc( &techDesc );
-	for(UINT p=0; p<techDesc.Passes; ++p)
-	{
-		m_pDrawVectorsTechnique->GetPassByIndex( p )->Apply(0);
-		pd3dDevice->Draw( m_pMeshCurves->GetVertexCount(), 0 );
-	}
-	diffTex = 1-diffTex;
-	diff2Tex = 1-diff2Tex;
-
-	// setup the pipeline for the following image-space algorithms
-	m_pDiffuseTechnique->GetPassByIndex( 0 )->GetDesc( &PassDesc );
-	if( FAILED( pd3dDevice->CreateInputLayout( InputElements, InputElementCount, PassDesc.pIAInputSignature, PassDesc.IAInputSignatureSize, &m_pVertexLayout ) ) )
-		return;
-	pd3dDevice->IASetInputLayout( m_pVertexLayout );
-	V( m_pMeshDiff->GetDeviceVertexBuffer(0, &pVertexBuffer) );
-	stride = sizeof( VSO_Vertex );
-	pd3dDevice->IASetVertexBuffers( 0, 1, &pVertexBuffer, &stride, &offset );
-	pd3dDevice->IASetPrimitiveTopology( D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-
-	// diffuse the texture in both directions
-	for (int i=0; i<diffSteps; i++)
-	{
-		// SA strategy
-		V( m_pPolySize->SetFloat( 1.0 -(float)(i)/(float)diffSteps ) );
-*/		// SH strategy
-/*		V( m_pPolySize->SetFloat( 1.0 ) );
-		if (i>diffSteps-diffSteps/2)
-		{
-			V( m_pPolySize->SetFloat( (float)(diffSteps-i)/(float)(diffSteps/2) ) );
-		}
-*/
-/*		pd3dDevice->OMSetRenderTargets( 1, &m_diffuseTextureTV[1-diffTex], NULL );
-		V( m_pInTex[0]->SetResource( m_diffuseTextureRV[diffTex] ) );
-		V( m_pInTex[1]->SetResource( m_distDirTextureRV ) );
-		diffTex = 1-diffTex;
-		m_pDiffuseTechnique->GetDesc( &techDesc );
-		for(UINT p=0; p<techDesc.Passes; ++p)
-		{
-			m_pDiffuseTechnique->GetPassByIndex( p )->Apply(0);
-			pd3dDevice->Draw( 3*m_pMeshDiff->GetFaceCount(), 0 );
-		}
-	}
-
-	// anti alias the lines
-	pd3dDevice->OMSetRenderTargets( 1, &m_diffuseTextureTV[1-diffTex], NULL );
-	V( m_pInTex[0]->SetResource( m_diffuseTextureRV[diffTex] ) );
-	V( m_pInTex[1]->SetResource( m_otherTextureRV ) );
-	diffTex = 1-diffTex;
-	V( m_pDiffTex->SetResource( m_distDirTextureRV ) );
-	m_pLineAntiAliasTechnique->GetDesc( &techDesc );
-	for(UINT p=0; p<techDesc.Passes; ++p)
-	{
-		m_pLineAntiAliasTechnique->GetPassByIndex( p )->Apply(0);
-		pd3dDevice->Draw( 3*m_pMeshDiff->GetFaceCount(), 0 );
-	}
-
-	//restore old render targets
-	pd3dDevice->OMSetRenderTargets( 1,  &old_pRTV,  old_pDSV );
-	pd3dDevice->RSSetViewports( NumViewports, &pViewports[0]);
-}
-*/
-
-
-
-// this renders the final image to the screen
-/*void VSObject::Render(ID3D10Device *pd3dDevice)
-{
-	HRESULT hr;
-	// Create the input layout
-    D3D10_PASS_DESC PassDesc;
-    m_pDisplayImage->GetPassByIndex( 0 )->GetDesc( &PassDesc );
-    if( FAILED( pd3dDevice->CreateInputLayout( InputElements, InputElementCount, PassDesc.pIAInputSignature, PassDesc.IAInputSignatureSize, &m_pVertexLayout ) ) )
-        return;
-    // Set the input layout
-    pd3dDevice->IASetInputLayout( m_pVertexLayout );
-	if(m_pVertexBuffer == NULL)
-		V( m_pMeshDiff->GetDeviceVertexBuffer(0, &m_pVertexBuffer) );
-
-    // Set vertex buffer
-    UINT stride = sizeof( VSO_Vertex );
-    UINT offset = 0;
-    pd3dDevice->IASetVertexBuffers( 0, 1, &m_pVertexBuffer, &stride, &offset );
-    pd3dDevice->IASetPrimitiveTopology( D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-	V( m_pDiffTex->SetResource( m_diffuseTextureRV[diffTex] ) );
-	D3D10_TECHNIQUE_DESC techDesc;
-	m_pDisplayImage->GetDesc( &techDesc );
-	for( UINT p = 0; p < techDesc.Passes; ++p )
-	{
-		m_pDisplayImage->GetPassByIndex( p )->Apply(0);
-		pd3dDevice->Draw( 3*m_pMeshDiff->GetFaceCount(), 0 );
-	}
-}*/
-
-
-
 bool stringStartsWith(const char *s, const char *val)
 {
         return !strncmp(s, val, strlen(val));
 }
-
-
 
 
 void VSObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10, int sizeX, int sizeY)
@@ -333,14 +192,6 @@ void VSObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10
 	hr = pd3dDevice->CreateShaderResourceView( m_otherTexture, NULL, &m_otherTextureRV );
 	hr = pd3dDevice->CreateRenderTargetView(   m_otherTexture, NULL, &m_otherTextureTV );
 
-	// Orzan diffusion curves
-	char s[255] = "Media\\zephyr.xml";
-
-	if (m_pMeshCurves == NULL)
-	{
-		ReadVectorFile( &s[0] );
-		ConstructCurves(pd3dDevice);
-	}
 }
 
 

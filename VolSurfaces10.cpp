@@ -31,6 +31,7 @@ CDXUTDialog             g_HUD;                  // manages the 3D
 CDXUTDialog             g_SampleUI;             // dialog for sample specific controls
 float					g_showMenue = true;
 bool					g_mouseLButtonDown = false;
+bool					g_controlObject1 = true;
 
 // Direct3D9 resources
 CDXUTTextHelper*        g_pTxtHelper = NULL;
@@ -52,6 +53,7 @@ ID3D10Effect*           g_pEffect10 = NULL;
 #define IDC_CHANGEDEVICE         4
 #define IDC_DIFF_STEPS           6
 #define IDC_DIFF_STEPS_STATIC    7
+#define IDC_CHANGE_IMAGECONTROL  8
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -128,6 +130,10 @@ void InitApp()
 	StringCchPrintf( sz, 100, L"Diffusion steps: %d", 8 ); 
     g_SampleUI.AddStatic( IDC_DIFF_STEPS_STATIC, sz, 35, iY += 48, 125, 22 );
     g_SampleUI.AddSlider( IDC_DIFF_STEPS, 50, iY += 24, 100, 22, 0, 400, 4 );
+	
+	WCHAR btn[100];
+	StringCchPrintf( btn, 100, L"Change controlling image");
+	g_SampleUI.AddButton( IDC_CHANGE_IMAGECONTROL, btn, 10, 10, 150, 20);
 }
 
 
@@ -279,6 +285,10 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
             StringCchPrintf( sz, 100, L"Diffusion steps: %d", g_vsCombinedObj->diffSteps ); 
             g_SampleUI.GetStatic( IDC_DIFF_STEPS_STATIC )->SetText( sz );
             break;
+		case IDC_CHANGE_IMAGECONTROL:
+			//g_controlObject1 = !g_controlObject1;
+			g_vsCombinedObj->ChangeControl();
+			break;
 	}
 }
 
@@ -395,11 +405,11 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 
     if( g_Camera.m_nMouseWheelDelta && g_Camera.m_nZoomButtonMask == MOUSE_WHEEL )
 	{
-		g_vsCombinedObj->g_vsObj1->m_pan /= g_vsCombinedObj->g_vsObj1->m_scale;
-	   	g_vsCombinedObj->g_vsObj1->m_scale += g_vsCombinedObj->g_vsObj1->m_scale*g_Camera.m_nMouseWheelDelta * 0.2;
-		g_vsCombinedObj->g_vsObj1->m_pan *= g_vsCombinedObj->g_vsObj1->m_scale;
+		g_vsCombinedObj->g_controlledObj->m_pan /= g_vsCombinedObj->g_controlledObj->m_scale;
+	   	g_vsCombinedObj->g_controlledObj->m_scale += g_vsCombinedObj->g_controlledObj->m_scale*g_Camera.m_nMouseWheelDelta * 0.2;
+		g_vsCombinedObj->g_controlledObj->m_pan *= g_vsCombinedObj->g_controlledObj->m_scale;
 	    g_Camera.m_nMouseWheelDelta = 0;
-		g_vsCombinedObj->g_vsObj1->m_scale = max(0.01, g_vsCombinedObj->g_vsObj1->m_scale);
+		g_vsCombinedObj->g_controlledObj->m_scale = max(0.01, g_vsCombinedObj->g_controlledObj->m_scale);
 	}
 
 	if ((!g_Camera.IsMouseRButtonDown()) && (g_mouseLButtonDown == true))
@@ -416,9 +426,9 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 		float ff = 1.0f;
 		if (g_Camera.IsMouseRButtonDown())
 			ff = 0.127f; 
-		float xFac = ff*4.0f/g_vsCombinedObj->g_vsObj1->m_sizeX;
-		float yFac = ff*4.0f/g_vsCombinedObj->g_vsObj1->m_sizeY;
-		g_vsCombinedObj->g_vsObj1->m_pan += D3DXVECTOR2(xFac*g_Camera.m_vMouseDelta.x,-yFac*g_Camera.m_vMouseDelta.y);
+		float xFac = ff*4.0f/g_vsCombinedObj->g_controlledObj->m_sizeX;
+		float yFac = ff*4.0f/g_vsCombinedObj->g_controlledObj->m_sizeY;
+		g_vsCombinedObj->g_controlledObj->m_pan += D3DXVECTOR2(xFac*g_Camera.m_vMouseDelta.x,-yFac*g_Camera.m_vMouseDelta.y);
 		g_Camera.m_vMouseDelta.x = 0;
 		g_Camera.m_vMouseDelta.y = 0;
 	}

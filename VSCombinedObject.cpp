@@ -52,6 +52,8 @@ VSCombinedObject::VSCombinedObject(ID3D10Device *pd3dDevice)
 {
 	g_vsObj1 = new VSObject(pd3dDevice);
 	g_vsObj2 = new VSObject(pd3dDevice);
+	g_controlledObj = g_vsObj1;
+	g_Obj1IsControlled = true;
 	m_pVertexBuffer = NULL;
 	m_pVertexLayout = NULL;
 	m_pDepthStencil = NULL;
@@ -79,24 +81,6 @@ VSCombinedObject::~VSCombinedObject(void)
 
 }
 
-void VSCombinedObject::CombineObjects()
-{
-	m_cSegNum = g_vsObj1->m_cSegNum + g_vsObj2->m_cSegNum;
-	m_cNum = g_vsObj1->m_cNum + g_vsObj2->m_cNum;
-	m_curve = new CURVE[m_cNum];
-	
-	int i = 0;
-	for(int j = 0; j < g_vsObj1->m_cNum; j++)
-	{
-		m_curve[i] = g_vsObj1->m_curve[j];
-		i++;
-	}
-	for(int j = 0; j < g_vsObj2->m_cNum; j++)
-	{
-		m_curve[i] = g_vsObj2->m_curve[j];
-		i++;
-	}
-}
 
 void VSCombinedObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 {
@@ -112,7 +96,7 @@ void VSCombinedObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 	D3D10_VIEWPORT pViewports[100];
 	pd3dDevice->RSGetViewports( &NumViewports, &pViewports[0]);
 
-	// Draw first object
+	// Draw first object's curves
 
 	// set the shader variables, they are valid through the whole rendering pipeline
 	V( g_pScale->SetFloat(g_vsObj1->m_scale) );
@@ -148,7 +132,7 @@ void VSCombinedObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 		pd3dDevice->Draw( g_vsObj1->m_pMeshCurves->GetVertexCount(), 0 );
 	}
 	
-	// Draw second object
+	// Draw second object's curves
 			
 	// set the shader variables, they are valid through the whole rendering pipeline
 	V( g_pScale->SetFloat(g_vsObj2->m_scale) );
@@ -234,8 +218,6 @@ void VSCombinedObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 	pd3dDevice->OMSetRenderTargets( 1,  &old_pRTV,  old_pDSV );
 	pd3dDevice->RSSetViewports( NumViewports, &pViewports[0]);
 }
-
-
 
 
 // this renders the final image to the screen
@@ -381,160 +363,22 @@ void VSCombinedObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_p
 	{
 		g_vsObj1->ReadVectorFile( &s1[0] );
 		g_vsObj2->ReadVectorFile( &s2[0] );
-		CombineObjects();
-		ConstructCurves(pd3dDevice);
+		
 		g_vsObj1->ConstructCurves(pd3dDevice);
 		g_vsObj2->ConstructCurves(pd3dDevice);
 	}
 }
 
-// convert the vectors into triangle strips and draw these to the finest pyramid level
-void VSCombinedObject::ConstructCurves(ID3D10Device *pd3dDevice)
+void VSCombinedObject::ChangeControl()
 {
-	D3DXVECTOR2	pLoop;
-	int	iLoopStart;
-	HRESULT	hr;
-	float subSegNum = 1.0f;
-	CURVE_Vertex *pd = new CURVE_Vertex[m_cSegNum*(int)(subSegNum)*10*2];
-	int	*used = new int[m_cNum];
-	ZeroMemory(used,m_cNum*sizeof(int));
-	int cPos = 0;
-	for (int iX=0; iX<m_cNum; iX++)
+	if(g_Obj1IsControlled)
 	{
-		int i1=(int)(rand())*(m_cNum-1)/RAND_MAX;
-		while (used[i1] > 0)
-		{
-			i1++;
-			if (i1 == m_cNum)
-				i1 = 0;
-		}
-		used[i1] = 1;
-
-		int cSeg = 0;
-		int lID = 0;
-		while (m_curve[i1].cl[lID+1].off <= 0)
-			lID++;
-		int lS = m_curve[i1].cl[lID].off;
-		int lN = m_curve[i1].cl[lID+1].off;
-		int rID = 0;
-		while (m_curve[i1].cr[rID+1].off <= 0)
-			rID++;
-		int rS = m_curve[i1].cr[rID].off;
-		int rN = m_curve[i1].cr[rID+1].off;
-		int bID = 0;
-		while (m_curve[i1].b[bID+1].off <= 0)
-			bID++;
-		int bS = m_curve[i1].b[rID].off;
-		int bN2 = m_curve[i1].b[rID+1].off;
-		for (int i2=0; i2<m_curve[i1].pNum-1; i2+=3)
-		{
-			for (float t=0; t<1.0f; t+=0.1f)
-			{
-				float t1 = t;
-				float t2 = t+0.1f;
-
-				float f = (float)(cSeg-lS)/(float)(lN-lS);
-				float fN = (float)(cSeg+1-lS)/(float)(lN-lS);
-				D3DXVECTOR4 cL = D3DXVECTOR4((1.0f-f)*m_curve[i1].cl[lID].col + f*m_curve[i1].cl[lID+1].col, 1.0f);
-				D3DXVECTOR4 cNL = D3DXVECTOR4((1.0f-fN)*m_curve[i1].cl[lID].col + fN*m_curve[i1].cl[lID+1].col, 1.0f);
-
-				f = (float)(cSeg-rS)/(float)(rN-rS);
-				fN = (float)(cSeg+1-rS)/(float)(rN-rS);
-				D3DXVECTOR4 cR = D3DXVECTOR4((1.0f-f)*m_curve[i1].cr[rID].col + f*m_curve[i1].cr[rID+1].col, 1.0f);
-				D3DXVECTOR4 cNR = D3DXVECTOR4((1.0f-fN)*m_curve[i1].cr[rID].col + fN*m_curve[i1].cr[rID+1].col, 1.0f);
-
-				f = ((float)(cSeg-bS))/((float)(bN2-bS));
-				fN = (float)(cSeg+1-bS)/(float)(bN2-bS);
-				float b = (1.0f-f)*m_curve[i1].b[bID].blurr + f*m_curve[i1].b[bID+1].blurr;
-				float bN = (1.0f-fN)*m_curve[i1].b[bID].blurr + fN*m_curve[i1].b[bID+1].blurr;
-
-				// it is not entirely clear how [Orzan et al.08] encode the blurr in the files, this has been found to work ok..
-				b = b*1; //pow(1.5f,b);
-				bN = bN*1; //pow(1.5f,bN);
-
-				for (float sI=0.0f; sI<1.0f; sI+=1.0f/subSegNum)
-				{
-					float sN = sI+1.0f/subSegNum;
-					float s1  = (1.0f-sI)*t1 + sI*t2;
-					float s2 =  (1.0f-sN)*t1 + sN*t2;
-
-					D3DXVECTOR2 p0 = (1.0f-s1)*(1.0f-s1)*(1.0f-s1)*m_curve[i1].p[i2] + 3*s1*(1.0f-s1)*(1.0f-s1)*m_curve[i1].p[i2+1] + 3*s1*s1*(1.0f-s1)*m_curve[i1].p[i2+2] + s1*s1*s1*m_curve[i1].p[i2+3];
-					D3DXVECTOR2 p1 = (1.0f-s2)*(1.0f-s2)*(1.0f-s2)*m_curve[i1].p[i2] + 3*s2*(1.0f-s2)*(1.0f-s2)*m_curve[i1].p[i2+1] + 3*s2*s2*(1.0f-s2)*m_curve[i1].p[i2+2] + s2*s2*s2*m_curve[i1].p[i2+3];
-
-					pd[cPos+0].col[0] = (1.0f-sI)*cL + sI*cNL;
-					pd[cPos+0].col[0].w = (1.0f-sI)*b + sI*bN;
-					pd[cPos+1].col[0] = (1.0f-sN)*cL + sN*cNL;
-					pd[cPos+1].col[0].w = (1.0f-sN)*b + sN*bN;
-					pd[cPos+0].col[1] = (1.0f-sI)*cR + sI*cNR;
-					pd[cPos+0].col[1].w = (1.0f-sI)*b + sI*bN;
-					pd[cPos+1].col[1] = (1.0f-sN)*cR + sN*cNR;
-					pd[cPos+1].col[1].w = (1.0f-sN)*b + sN*bN;
-					pd[cPos+0].pos = D3DXVECTOR2(p0.x,-p0.y);
-					pd[cPos+1].pos = D3DXVECTOR2(p1.x,-p1.y);
-
-					if ((i2 == 0) && (t == 0.0f) && (sI < 0.5f/subSegNum))
-					{
-						pd[cPos+0].nb = D3DXVECTOR2(10000.0f, 10000.0f);
-						// if we are at the begin of a loop, do not declare endpoints
-						if ((m_curve[i1].p[0] == m_curve[i1].p[m_curve[i1].pNum-1]) && (sI < 0.5f/subSegNum))
-						{
-							pLoop = pd[cPos+1].pos;
-							iLoopStart = cPos;
-						}
-					}
-					else
-					{
-						pd[cPos+0].nb = pd[cPos-1].pos;
-						pd[cPos-1].nb = pd[cPos+1].pos;
-					}
-					pd[cPos+1].nb = D3DXVECTOR2(10000.0f, 10000.0f);
-					// if we are at the end of a loop, do not declare endpoints
-					if ((m_curve[i1].p[0] == m_curve[i1].p[m_curve[i1].pNum-1]) && (i2==m_curve[i1].pNum-1-3) && (t>=0.89f) && (sI+1.1f/subSegNum>=1.0))
-					{
-						pd[iLoopStart].nb = pd[cPos+0].pos;
-						pd[cPos+1].nb = pLoop;
-					}
-					cPos += 2;
-				}
-				cSeg++;
-				while ((cSeg >= lN) && (lID < m_curve[i1].clNum-2))
-				{
-					lID++;
-					lS = m_curve[i1].cl[lID].off;
-					lN = m_curve[i1].cl[lID+1].off;
-				}
-				while ((cSeg >= rN) && (rID < m_curve[i1].crNum-2))
-				{
-					rID++;
-					rS = m_curve[i1].cr[rID].off;
-					rN = m_curve[i1].cr[rID+1].off;
-				}
-				while ((cSeg >= bN2)  && (bID < m_curve[i1].bNum-2))
-				{
-					bID++;
-					bS = m_curve[i1].b[bID].off;
-					bN2 = m_curve[i1].b[bID+1].off;
-				}
-			}
-		}
+		g_controlledObj = g_vsObj2;
 	}
-	if (m_pMeshCurves)
+	else
 	{
-		m_pMeshCurves->Discard( D3DX10_MESH_DISCARD_ATTRIBUTE_BUFFER );
-		m_pMeshCurves->Discard( D3DX10_MESH_DISCARD_ATTRIBUTE_TABLE );
-		m_pMeshCurves->Discard( D3DX10_MESH_DISCARD_POINTREPS );
-		m_pMeshCurves->Discard( D3DX10_MESH_DISCARD_ADJACENCY );
-		m_pMeshCurves->Discard( D3DX10_MESH_DISCARD_DEVICE_BUFFERS );
+		g_controlledObj = g_vsObj1;
 	}
-	m_pMeshCurves = NULL;
-	V( D3DX10CreateMesh(pd3dDevice, VSObject::InputCurveElements, VSObject::InputCurveElementCount, "POSITION", m_cSegNum*(int)(subSegNum)*10*2, m_cSegNum*(int)(subSegNum)*10, 0, &m_pMeshCurves) );
-	V( m_pMeshCurves->SetVertexData(0, pd) );
-	V( m_pMeshCurves->CommitToDevice() );
-	delete[]pd;
-	delete[]used;
-
-	WCHAR wcFileInfo[512];
-	StringCchPrintf( wcFileInfo, 512, L"(INFO) : Number of curve segments: %d \n", m_cSegNum*(int)(subSegNum)*10);
-	OutputDebugString( wcFileInfo );
-
+	g_Obj1IsControlled = !g_Obj1IsControlled;
+		
 }
