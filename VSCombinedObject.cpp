@@ -56,6 +56,7 @@ VSCombinedObject::VSCombinedObject(ID3D10Device *pd3dDevice)
 	g_fileObj2 = "Media\\behindthecurtain.xml";
 	g_controlledObj = g_vsObj1;
 	g_Obj1IsControlled = true;
+	g_showIso = false;
 	m_pVertexBuffer = NULL;
 	m_pVertexLayout = NULL;
 	m_pDepthStencil = NULL;
@@ -65,6 +66,7 @@ VSCombinedObject::VSCombinedObject(ID3D10Device *pd3dDevice)
 	m_otherTexture = NULL;
 	diffTex = 0;
 	diff2Tex = 0;
+	m_greyValue = 0.5;
 	diffSteps = 8;
 	m_pMeshDiff = NULL;
 	m_pMeshCurves = NULL;
@@ -106,6 +108,7 @@ void VSCombinedObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 	V( m_pDiffX->SetFloat( g_vsObj1->m_sizeX ) );
 	V( m_pDiffY->SetFloat( g_vsObj1->m_sizeY ) );
 	V( m_pPolySize->SetFloat( g_vsObj1->m_polySize ) );
+	V( m_pGreyValue->SetFloat(m_greyValue));
 
 	// render the triangles to the highest input texture level (assuming they are already defined!)
 	ID3D10InputLayout* pCurveVertexLayout;
@@ -142,6 +145,7 @@ void VSCombinedObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 	V( m_pDiffX->SetFloat( g_vsObj2->m_sizeX ) );
 	V( m_pDiffY->SetFloat( g_vsObj2->m_sizeY ) );
 	V( m_pPolySize->SetFloat( g_vsObj2->m_polySize ) );
+	V( m_pGreyValue->SetFloat(m_greyValue));
 
 	// render the triangles to the highest input texture level (assuming they are already defined!)
 	
@@ -214,6 +218,22 @@ void VSCombinedObject::RenderDiffusion(ID3D10Device *pd3dDevice)
 	{
 		m_pLineAntiAliasTechnique->GetPassByIndex( p )->Apply(0);
 		pd3dDevice->Draw( 3*m_pMeshDiff->GetFaceCount(), 0 );
+	}
+
+	// draw Isosurfaces
+	if(g_showIso)
+	{
+		pd3dDevice->OMSetRenderTargets( 1, &m_diffuseTextureTV[1-diffTex], NULL );
+		V( m_pInTex[0]->SetResource( m_diffuseTextureRV[diffTex] ) );
+		V( m_pInTex[1]->SetResource( m_otherTextureRV ) );
+		diffTex = 1-diffTex;
+		V( m_pDiffTex->SetResource( m_distDirTextureRV ) );
+		m_pIsoSurfaceTechnique->GetDesc( &techDesc );
+		for(UINT p=0; p<techDesc.Passes; ++p)
+		{
+			m_pIsoSurfaceTechnique->GetPassByIndex( p )->Apply(0);
+			pd3dDevice->Draw( 3*m_pMeshDiff->GetFaceCount(), 0 );
+		}
 	}
 
 	//restore old render targets
@@ -294,6 +314,7 @@ void VSCombinedObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_p
 	m_pDiffuseTechnique = g_pEffect10->GetTechniqueByName( "Diffuse" );
 	m_pLineAntiAliasTechnique = g_pEffect10->GetTechniqueByName( "LineAntiAlias" );
     m_pDisplayImage = g_pEffect10->GetTechniqueByName( "DisplayDiffusionImage" );
+	m_pIsoSurfaceTechnique = g_pEffect10->GetTechniqueByName("Isosurface");
 	m_pDiffTex = g_pEffect10->GetVariableByName( "g_diffTex" )->AsShaderResource();
 	for (int i=0; i<3; i++)
 		m_pInTex[i] = (g_pEffect10->GetVariableByName( "g_inTex" ))->GetElement(i)->AsShaderResource();
@@ -301,6 +322,7 @@ void VSCombinedObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_p
 	m_pDiffY = g_pEffect10->GetVariableByName( "g_diffY")->AsScalar();
 	g_pScale = g_pEffect10->GetVariableByName( "g_scale")->AsScalar();
 	m_pPolySize = g_pEffect10->GetVariableByName( "g_polySize")->AsScalar();
+	m_pGreyValue = g_pEffect10->GetVariableByName("g_greyValue")->AsScalar();
 	g_pPan = g_pEffect10->GetVariableByName( "g_pan")->AsVector();
 
 	// create the depth buffer (only needed for curve mask rendering)

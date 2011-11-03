@@ -333,18 +333,19 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			{
 				g_SampleUI.GetSlider(IDC_ISO_VALUE)->m_bVisible = false;
 				g_SampleUI.GetStatic(IDC_ISO_VALUE_STATIC)->m_bVisible = false;
-				//TODO
+				g_vsCombinedObj->g_showIso = false;
 			}
 			else
 			{
 				g_SampleUI.GetSlider(IDC_ISO_VALUE)->m_bVisible = true;
 				g_SampleUI.GetStatic(IDC_ISO_VALUE_STATIC)->m_bVisible = true;
-				//TODO
+				g_vsCombinedObj->g_showIso = true;
 			}
 			g_isoVisible = !g_isoVisible;
 			break;
 		case IDC_ISO_VALUE:
-			//TODO
+			int value = g_SampleUI.GetSlider( IDC_ISO_VALUE )->GetValue();
+			g_vsCombinedObj->m_greyValue = value/100.0;
 			break;
 	}
 }

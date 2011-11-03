@@ -14,6 +14,8 @@ public:
 	VSObject *g_controlledObj;
 	bool g_Obj1IsControlled;
 
+	bool g_showIso;
+
 	CComPtr<ID3DX10Mesh> m_pMeshDiff;
 	CComPtr<ID3DX10Mesh> m_pMeshCurves;
 
@@ -34,6 +36,7 @@ public:
 	ID3D10EffectTechnique *m_pDiffuseTechnique;
 	ID3D10EffectTechnique *m_pLineAntiAliasTechnique;
 	ID3D10EffectTechnique *m_pDisplayImage;
+	ID3D10EffectTechnique *m_pIsoSurfaceTechnique;
 
 	ID3D10EffectShaderResourceVariable* m_pInTex[3];
 	ID3D10EffectShaderResourceVariable* m_pDiffTex;
@@ -42,6 +45,7 @@ public:
 	ID3D10EffectScalarVariable* g_pScale;
 	ID3D10EffectVectorVariable* g_pPan;
 	ID3D10EffectScalarVariable* m_pPolySize;
+	ID3D10EffectScalarVariable* m_pGreyValue;
 
 	D3D10_VIEWPORT m_vp;
 
@@ -58,6 +62,7 @@ public:
 	float m_fHeight;
 	int diffTex;
 	int diff2Tex;
+	float m_greyValue;
 
 	static D3D10_INPUT_ELEMENT_DESC InputElements[];
 	static D3D10_INPUT_ELEMENT_DESC InputCurveElements[];

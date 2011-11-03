@@ -136,6 +136,7 @@ void VSObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10
 	m_pDiffY = g_pEffect10->GetVariableByName( "g_diffY")->AsScalar();
 	g_pScale = g_pEffect10->GetVariableByName( "g_scale")->AsScalar();
 	m_pPolySize = g_pEffect10->GetVariableByName( "g_polySize")->AsScalar();
+	m_pGreyValue = g_pEffect10->GetVariableByName("g_greyValue")->AsScalar();
 	g_pPan = g_pEffect10->GetVariableByName( "g_pan")->AsVector();
 
 	// create the depth buffer (only needed for curve mask rendering)

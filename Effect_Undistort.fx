@@ -5,6 +5,7 @@ cbuffer cbChangesEveryFrame
 	float g_diffX;				// x size of diffusion texture
 	float g_diffY;				// y size of diffusion texture
 	float g_polySize;			// size of the curve polygons (2 is screen width/height)
+	float g_greyValue;
 };
 
 Texture2D g_inTex[3];	// input texture (containing lines with north east south west colors)
@@ -492,6 +493,22 @@ PS_OUTPUT LineAntiAliasPS(PS_INPUT In)
 	return Out;
 }
 
+PS_OUTPUT IsoSurfacePS(PS_INPUT In)
+{
+	PS_OUTPUT Out; 
+	float4 col = g_inTex[0].SampleLevel(PointSampler, In.Tex.xy, 0).xyzw;
+	if(col.x < g_greyValue)
+	{
+		Out.oColor = col;
+	}
+	else
+	{
+		Out.oColor = float4(0.0, 0.0, 0.0, col.w);
+	}
+	return Out;
+
+}
+
 
 
 //--------------------------------------------------------------------------------------
@@ -622,4 +639,16 @@ technique10 LineAntiAlias
     }
 }
 
+technique10 Isosurface
+{
+	pass P1
+	{
+		SetVertexShader(CompileShader(vs_4_0, TetraVS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_4_0, IsoSurfacePS()));
+		SetRasterizerState(state);
+		SetBlendState(NoBlending, float4(1.0f, 1.0f, 1.0f, 1.0f), 0xFFFFFFFF);
+		SetDepthStencilState(soliddepth, 0);
+	}
+}
 

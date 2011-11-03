@@ -73,6 +73,7 @@ public:
 	ID3D10EffectScalarVariable* g_pScale;
 	ID3D10EffectVectorVariable* g_pPan;
 	ID3D10EffectScalarVariable* m_pPolySize;
+	ID3D10EffectScalarVariable* m_pGreyValue;
 
 	D3D10_VIEWPORT m_vp;
 
