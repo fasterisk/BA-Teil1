@@ -31,7 +31,7 @@ CDXUTDialog             g_HUD;                  // manages the 3D
 CDXUTDialog             g_SampleUI;             // dialog for sample specific controls
 float					g_showMenue = true;
 bool					g_mouseLButtonDown = false;
-bool					g_controlObject1 = true;
+bool					g_blackAndWhite = false;
 
 // Direct3D9 resources
 CDXUTTextHelper*        g_pTxtHelper = NULL;
@@ -54,6 +54,7 @@ ID3D10Effect*           g_pEffect10 = NULL;
 #define IDC_DIFF_STEPS           6
 #define IDC_DIFF_STEPS_STATIC    7
 #define IDC_CHANGE_IMAGECONTROL  8
+#define IDC_CHANGE_BW			 9
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -128,12 +129,16 @@ void InitApp()
     WCHAR sz[100];
 
 	StringCchPrintf( sz, 100, L"Diffusion steps: %d", 8 ); 
-    g_SampleUI.AddStatic( IDC_DIFF_STEPS_STATIC, sz, 35, iY += 48, 125, 22 );
-    g_SampleUI.AddSlider( IDC_DIFF_STEPS, 50, iY += 24, 100, 22, 0, 400, 4 );
+    g_SampleUI.AddStatic( IDC_DIFF_STEPS_STATIC, sz, 30, iY += 48, 125, 22 );
+    g_SampleUI.AddSlider( IDC_DIFF_STEPS, 45, iY += 24, 100, 22, 0, 400, 4 );
 	
 	WCHAR btn[100];
 	StringCchPrintf( btn, 100, L"Change controlling image");
-	g_SampleUI.AddButton( IDC_CHANGE_IMAGECONTROL, btn, 10, 10, 150, 20);
+	g_SampleUI.AddButton( IDC_CHANGE_IMAGECONTROL, btn, 10, 9, 150, 20);
+
+	WCHAR chbx[100];
+	StringCchPrintf( chbx, 100, L"Black/White images");
+	g_SampleUI.AddCheckBox(IDC_CHANGE_BW, chbx, 10, 120, 150, 20);
 }
 
 
@@ -286,8 +291,24 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
             g_SampleUI.GetStatic( IDC_DIFF_STEPS_STATIC )->SetText( sz );
             break;
 		case IDC_CHANGE_IMAGECONTROL:
-			//g_controlObject1 = !g_controlObject1;
 			g_vsCombinedObj->ChangeControl();
+			break;
+		case IDC_CHANGE_BW:
+			char s1[255] = "Media\\zephyr.xml";
+			char s2[255] = "Media\\behindthecurtain.xml";
+			g_blackAndWhite = !g_blackAndWhite;
+			if(g_blackAndWhite)
+			{
+				g_vsCombinedObj->g_vsObj1->ReadVectorFile( &s1[0], 1);
+				g_vsCombinedObj->g_vsObj2->ReadVectorFile( &s2[0], 2);
+			}
+			else
+			{
+				g_vsCombinedObj->g_vsObj1->ReadVectorFile( &s1[0], 0);
+				g_vsCombinedObj->g_vsObj2->ReadVectorFile( &s2[0], 0);
+			}
+			g_vsCombinedObj->g_vsObj1->ConstructCurves(g_device);
+			g_vsCombinedObj->g_vsObj2->ConstructCurves(g_device);
 			break;
 	}
 }
@@ -382,7 +403,7 @@ HRESULT CALLBACK OnD3D10ResizedSwapChain( ID3D10Device* pd3dDevice, IDXGISwapCha
 	// resize the texture so that it fits to the current screen size
 	UINT width = ( DXUTIsAppRenderingWithD3D9() ) ? DXUTGetD3D9BackBufferSurfaceDesc()->Width : DXUTGetDXGIBackBufferSurfaceDesc()->Width;
 	UINT height = ( DXUTIsAppRenderingWithD3D9() ) ? DXUTGetD3D9BackBufferSurfaceDesc()->Height : DXUTGetDXGIBackBufferSurfaceDesc()->Height;
-	g_vsCombinedObj->SetupTextures(pd3dDevice, g_pEffect10, width, height);
+	g_vsCombinedObj->SetupTextures(pd3dDevice, g_pEffect10, width, height, g_blackAndWhite);
 	g_vsCombinedObj->g_vsObj1->SetupTextures(pd3dDevice, g_pEffect10, width, height);
 	g_vsCombinedObj->g_vsObj2->SetupTextures(pd3dDevice, g_pEffect10, width, height);
     return S_OK;

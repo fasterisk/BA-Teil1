@@ -250,7 +250,7 @@ void VSCombinedObject::Render(ID3D10Device *pd3dDevice)
 }
 
 
-void VSCombinedObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10, int sizeX, int sizeY)
+void VSCombinedObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10, int sizeX, int sizeY, bool bw)
 {
 	HRESULT hr;
 
@@ -361,9 +361,16 @@ void VSCombinedObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_p
 
 	if (m_pMeshCurves == NULL)
 	{
-		g_vsObj1->ReadVectorFile( &s1[0], 1);
-		g_vsObj2->ReadVectorFile( &s2[0], 2);
-		
+		if(bw)
+		{
+			g_vsObj1->ReadVectorFile( &s1[0], 1);
+			g_vsObj2->ReadVectorFile( &s2[0], 2);
+		}
+		else
+		{
+			g_vsObj1->ReadVectorFile( &s1[0], 0);
+			g_vsObj2->ReadVectorFile( &s2[0], 0);
+		}
 		g_vsObj1->ConstructCurves(pd3dDevice);
 		g_vsObj2->ConstructCurves(pd3dDevice);
 	}
