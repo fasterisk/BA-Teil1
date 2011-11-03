@@ -324,6 +324,8 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 				g_SampleUI.GetCheckBox(IDC_SHOW_ISO)->m_bVisible = false;
 				g_SampleUI.GetSlider(IDC_ISO_VALUE)->m_bVisible = false;
 				g_SampleUI.GetStatic(IDC_ISO_VALUE_STATIC)->m_bVisible = false;
+				g_vsCombinedObj->g_showIso = false;
+
 			}
 			g_vsCombinedObj->g_vsObj1->ConstructCurves(g_device);
 			g_vsCombinedObj->g_vsObj2->ConstructCurves(g_device);

@@ -497,7 +497,7 @@ PS_OUTPUT IsoSurfacePS(PS_INPUT In)
 {
 	PS_OUTPUT Out; 
 	float4 col = g_inTex[0].SampleLevel(PointSampler, In.Tex.xy, 0).xyzw;
-	if(col.x < g_greyValue)
+	if(col.x >= g_greyValue)
 	{
 		Out.oColor = col;
 	}
