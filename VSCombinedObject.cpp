@@ -52,6 +52,8 @@ VSCombinedObject::VSCombinedObject(ID3D10Device *pd3dDevice)
 {
 	g_vsObj1 = new VSObject(pd3dDevice);
 	g_vsObj2 = new VSObject(pd3dDevice);
+	g_fileObj1 = "Media\\zephyr.xml";
+	g_fileObj2 = "Media\\behindthecurtain.xml";
 	g_controlledObj = g_vsObj1;
 	g_Obj1IsControlled = true;
 	m_pVertexBuffer = NULL;
@@ -355,21 +357,17 @@ void VSCombinedObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_p
 	hr = pd3dDevice->CreateShaderResourceView( m_otherTexture, NULL, &m_otherTextureRV );
 	hr = pd3dDevice->CreateRenderTargetView(   m_otherTexture, NULL, &m_otherTextureTV );
 
-	// Orzan diffusion curves
-	char s1[255] = "Media\\zephyr.xml";
-	char s2[255] = "Media\\behindthecurtain.xml";
-
 	if (m_pMeshCurves == NULL)
 	{
 		if(bw)
 		{
-			g_vsObj1->ReadVectorFile( &s1[0], 1);
-			g_vsObj2->ReadVectorFile( &s2[0], 2);
+			g_vsObj1->ReadVectorFile( &g_fileObj1[0], 1);
+			g_vsObj2->ReadVectorFile( &g_fileObj2[0], 2);
 		}
 		else
 		{
-			g_vsObj1->ReadVectorFile( &s1[0], 0);
-			g_vsObj2->ReadVectorFile( &s2[0], 0);
+			g_vsObj1->ReadVectorFile( &g_fileObj1[0], 0);
+			g_vsObj2->ReadVectorFile( &g_fileObj2[0], 0);
 		}
 		g_vsObj1->ConstructCurves(pd3dDevice);
 		g_vsObj2->ConstructCurves(pd3dDevice);

@@ -32,6 +32,7 @@ CDXUTDialog             g_SampleUI;             // dialog for sample specific co
 float					g_showMenue = true;
 bool					g_mouseLButtonDown = false;
 bool					g_blackAndWhite = false;
+bool					g_isoVisible = false;
 
 // Direct3D9 resources
 CDXUTTextHelper*        g_pTxtHelper = NULL;
@@ -55,6 +56,9 @@ ID3D10Effect*           g_pEffect10 = NULL;
 #define IDC_DIFF_STEPS_STATIC    7
 #define IDC_CHANGE_IMAGECONTROL  8
 #define IDC_CHANGE_BW			 9
+#define IDC_SHOW_ISO			10
+#define IDC_ISO_VALUE			11
+#define IDC_ISO_VALUE_STATIC	12
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -126,19 +130,31 @@ void InitApp()
 
 	g_SampleUI.SetCallback( OnGUIEvent ); 
 	iY = 0; 
-    WCHAR sz[100];
-
-	StringCchPrintf( sz, 100, L"Diffusion steps: %d", 8 ); 
-    g_SampleUI.AddStatic( IDC_DIFF_STEPS_STATIC, sz, 30, iY += 48, 125, 22 );
-    g_SampleUI.AddSlider( IDC_DIFF_STEPS, 45, iY += 24, 100, 22, 0, 400, 4 );
-	
+    
 	WCHAR btn[100];
 	StringCchPrintf( btn, 100, L"Change controlling image");
-	g_SampleUI.AddButton( IDC_CHANGE_IMAGECONTROL, btn, 10, 9, 150, 20);
+	g_SampleUI.AddButton( IDC_CHANGE_IMAGECONTROL, btn, 10, iY, 150, 20);
+	
+	WCHAR sz[100];
+	StringCchPrintf( sz, 100, L"Diffusion steps: %d", 8 ); 
+    g_SampleUI.AddStatic( IDC_DIFF_STEPS_STATIC, sz, 25, iY += 48, 125, 22 );
+    g_SampleUI.AddSlider( IDC_DIFF_STEPS, 40, iY += 24, 100, 22, 0, 400, 4 );
+	
+	WCHAR chbxbw[100];
+	StringCchPrintf( chbxbw, 100, L"Black/White images");
+	g_SampleUI.AddCheckBox(IDC_CHANGE_BW, chbxbw, 10, iY += 48, 150, 20);
 
-	WCHAR chbx[100];
-	StringCchPrintf( chbx, 100, L"Black/White images");
-	g_SampleUI.AddCheckBox(IDC_CHANGE_BW, chbx, 10, 120, 150, 20);
+	WCHAR chbxiso[100];
+	StringCchPrintf( chbxiso, 100, L"Show isosurfaces");
+	g_SampleUI.AddCheckBox(IDC_SHOW_ISO, chbxiso, 10, iY += 24, 150, 20);
+	g_SampleUI.GetCheckBox(IDC_SHOW_ISO)->m_bVisible = false;
+
+	WCHAR siso[100];
+	StringCchPrintf( siso, 100, L"Grey value:");
+	g_SampleUI.AddStatic(IDC_ISO_VALUE_STATIC, siso, 25, iY += 24, 125, 22);
+	g_SampleUI.AddSlider(IDC_ISO_VALUE, 40, iY += 24, 100, 22);
+	g_SampleUI.GetStatic(IDC_ISO_VALUE_STATIC)->m_bVisible = false;
+	g_SampleUI.GetSlider(IDC_ISO_VALUE)->m_bVisible = false;
 }
 
 
@@ -294,21 +310,41 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_vsCombinedObj->ChangeControl();
 			break;
 		case IDC_CHANGE_BW:
-			char s1[255] = "Media\\zephyr.xml";
-			char s2[255] = "Media\\behindthecurtain.xml";
 			g_blackAndWhite = !g_blackAndWhite;
 			if(g_blackAndWhite)
 			{
-				g_vsCombinedObj->g_vsObj1->ReadVectorFile( &s1[0], 1);
-				g_vsCombinedObj->g_vsObj2->ReadVectorFile( &s2[0], 2);
+				g_vsCombinedObj->g_vsObj1->ReadVectorFile( &g_vsCombinedObj->g_fileObj1[0], 1);
+				g_vsCombinedObj->g_vsObj2->ReadVectorFile( &g_vsCombinedObj->g_fileObj2[0], 2);
+				g_SampleUI.GetCheckBox(IDC_SHOW_ISO)->m_bVisible = true;
 			}
 			else
 			{
-				g_vsCombinedObj->g_vsObj1->ReadVectorFile( &s1[0], 0);
-				g_vsCombinedObj->g_vsObj2->ReadVectorFile( &s2[0], 0);
+				g_vsCombinedObj->g_vsObj1->ReadVectorFile( &g_vsCombinedObj->g_fileObj1[0], 0);
+				g_vsCombinedObj->g_vsObj2->ReadVectorFile( &g_vsCombinedObj->g_fileObj2[0], 0);
+				g_SampleUI.GetCheckBox(IDC_SHOW_ISO)->m_bVisible = false;
+				g_SampleUI.GetSlider(IDC_ISO_VALUE)->m_bVisible = false;
+				g_SampleUI.GetStatic(IDC_ISO_VALUE_STATIC)->m_bVisible = false;
 			}
 			g_vsCombinedObj->g_vsObj1->ConstructCurves(g_device);
 			g_vsCombinedObj->g_vsObj2->ConstructCurves(g_device);
+			break;
+		case IDC_SHOW_ISO:
+			if(g_isoVisible)
+			{
+				g_SampleUI.GetSlider(IDC_ISO_VALUE)->m_bVisible = false;
+				g_SampleUI.GetStatic(IDC_ISO_VALUE_STATIC)->m_bVisible = false;
+				//TODO
+			}
+			else
+			{
+				g_SampleUI.GetSlider(IDC_ISO_VALUE)->m_bVisible = true;
+				g_SampleUI.GetStatic(IDC_ISO_VALUE_STATIC)->m_bVisible = true;
+				//TODO
+			}
+			g_isoVisible = !g_isoVisible;
+			break;
+		case IDC_ISO_VALUE:
+			//TODO
 			break;
 	}
 }

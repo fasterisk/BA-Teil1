@@ -8,6 +8,9 @@ public:
 	VSObject *g_vsObj1;
 	VSObject *g_vsObj2;
 
+	char* g_fileObj1;
+	char* g_fileObj2;
+
 	VSObject *g_controlledObj;
 	bool g_Obj1IsControlled;
 
