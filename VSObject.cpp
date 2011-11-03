@@ -174,6 +174,7 @@ void VSObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10
 	hr = pd3dDevice->CreateTexture2D( &texdesc, NULL, &m_diffuseTexture[0]);
 	hr = pd3dDevice->CreateTexture2D( &texdesc, NULL, &m_diffuseTexture[1]);
 	hr = pd3dDevice->CreateTexture2D( &texdesc, NULL, &m_otherTexture);
+	
 
 	// distance map + nearest point map
 	texdesc.Usage = D3D10_USAGE_DEFAULT;
@@ -196,7 +197,7 @@ void VSObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10
 
 
 
-void VSObject::ReadVectorFile( char *s )
+void VSObject::ReadVectorFile( char *s, int mode )
 {
 	char buff[256];
 	WCHAR wcFileInfo[512];
@@ -284,6 +285,7 @@ void VSObject::ReadVectorFile( char *s )
 				maxBound.x = m_curve[i1].p[i2].x;
 		}
 		m_curve[i1].cl = new COLORPOINT[m_curve[i1].clNum];
+		
 		for (int i2=0; i2<m_curve[i1].clNum; i2++)
 		{
 			while (!stringStartsWith(buff, "   <left_color "))
@@ -292,12 +294,22 @@ void VSObject::ReadVectorFile( char *s )
 			while (!stringStartsWith(token, "G="))
 				token = strtok(NULL, " \"\t");
 			token = strtok(NULL, " \"\t");
-			m_curve[i1].cl[i2].col.y = atof(token)/256.0;
+			if(mode == 0)
+				m_curve[i1].cl[i2].col.y = atof(token)/256.0;
+			else if(mode == 1)
+				m_curve[i1].cl[i2].col.y = 255;
+			else if(mode == 2)
+				m_curve[i1].cl[i2].col.y = 0;
 
 			while (!stringStartsWith(token, "R="))
 				token = strtok(NULL, " \"\t");
 			token = strtok(NULL, " \"\t");
-			m_curve[i1].cl[i2].col.z  = atof(token)/256.0;
+			if(mode == 0)
+				m_curve[i1].cl[i2].col.z = atof(token)/256.0;
+			else if(mode == 1)
+				m_curve[i1].cl[i2].col.z = 255;
+			else if(mode == 2)
+				m_curve[i1].cl[i2].col.z = 0;
 
 			while (!stringStartsWith(token, "globalID="))
 				token = strtok(NULL, " \"\t");
@@ -307,7 +319,12 @@ void VSObject::ReadVectorFile( char *s )
 			while (!stringStartsWith(token, "B="))
 				token = strtok(NULL, " \"\t");
 			token = strtok(NULL, " \"\t");
-			m_curve[i1].cl[i2].col.x  = atof(token)/256.0;
+			if(mode == 0)
+				m_curve[i1].cl[i2].col.x = atof(token)/256.0;
+			else if(mode == 1)
+				m_curve[i1].cl[i2].col.x = 255;
+			else if(mode == 2)
+				m_curve[i1].cl[i2].col.x = 0;
 			fgets(buff, 255, F);
 		}
 
@@ -320,12 +337,22 @@ void VSObject::ReadVectorFile( char *s )
 			while (!stringStartsWith(token, "G="))
 				token = strtok(NULL, " \"\t");
 			token = strtok(NULL, " \"\t");
-			m_curve[i1].cr[i2].col.y = atof(token)/256.0;
+			if(mode == 0)
+				m_curve[i1].cr[i2].col.y = atof(token)/256.0;
+			else if(mode == 1)
+				m_curve[i1].cr[i2].col.y = 255;
+			else if(mode == 2)
+				m_curve[i1].cr[i2].col.y = 0;
 
 			while (!stringStartsWith(token, "R="))
 				token = strtok(NULL, " \"\t");
 			token = strtok(NULL, " \"\t");
-			m_curve[i1].cr[i2].col.z  = atof(token)/256.0;
+			if(mode == 0)
+				m_curve[i1].cr[i2].col.z = atof(token)/256.0;
+			else if(mode == 1)
+				m_curve[i1].cr[i2].col.z = 255;
+			else if(mode == 2)
+				m_curve[i1].cr[i2].col.z = 0;
 
 			while (!stringStartsWith(token, "globalID="))
 				token = strtok(NULL, " \"\t");
@@ -335,7 +362,12 @@ void VSObject::ReadVectorFile( char *s )
 			while (!stringStartsWith(token, "B="))
 				token = strtok(NULL, " \"\t");
 			token = strtok(NULL, " \"\t");
-			m_curve[i1].cr[i2].col.x  = atof(token)/256.0;
+			if(mode == 0)
+				m_curve[i1].cr[i2].col.x = atof(token)/256.0;
+			else if(mode == 1)
+				m_curve[i1].cr[i2].col.x = 255;
+			else if(mode == 2)
+				m_curve[i1].cr[i2].col.x = 0;
 			fgets(buff, 255, F);
 		}
 

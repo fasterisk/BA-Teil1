@@ -106,6 +106,9 @@ public:
 	BOOL CreateIndexBuffer(ID3D10Device *pd3dDevice);
 	
 	void SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_pEffect10, int sizeX, int sizeY);
-	void ReadVectorFile( char *s );
+	//mode = 0: all colors of the file are loaded
+	//mode = 1: all colors of the file are white
+	//mode = 2: all colors of the file are black
+	void ReadVectorFile( char *s, int mode);
 	void ConstructCurves(ID3D10Device *pd3dDevice);
 };

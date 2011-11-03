@@ -2,9 +2,9 @@ _UpgradeReport_Files
 Debug
 ipch
 Release
-VolSurfaces10_2005.opensdf
-VolSurfaces10_2005.sdf
-VolSurfaces10_2005.suo
+*.opensdf
+*.sdf
+*.suo
 
 UpgradeLog.XML
 *.old
