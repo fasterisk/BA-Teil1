@@ -52,8 +52,10 @@ VSCombinedObject::VSCombinedObject(ID3D10Device *pd3dDevice)
 {
 	g_vsObj1 = new VSObject(pd3dDevice);
 	g_vsObj2 = new VSObject(pd3dDevice);
-	g_fileObj1 = "Media\\zephyr.xml";
-	g_fileObj2 = "Media\\behindthecurtain.xml";
+	g_fileObj1 = "Media\\innerObject2.xml";
+	g_fileObj2 = "Media\\outerObject2.xml";
+//	g_fileObj1 = "Media\\innerObject.xml";
+//	g_fileObj2 = "Media\\outerObject.xml";
 	g_controlledObj = g_vsObj1;
 	g_Obj1IsControlled = true;
 	g_showIso = false;
@@ -355,8 +357,8 @@ void VSCombinedObject::SetupTextures(ID3D10Device *pd3dDevice, ID3D10Effect* g_p
 		m_otherTexture->Release();
 	texdesc.Width = (int)(m_sizeX);
 	texdesc.Height = (int)(m_sizeY);
-	texdesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-//	texdesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;  // use this for higher accuracy diffusion
+//	texdesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texdesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;  // use this for higher accuracy diffusion
 	texdesc.BindFlags =  D3D10_BIND_RENDER_TARGET | D3D10_BIND_SHADER_RESOURCE;
 	hr = pd3dDevice->CreateTexture2D( &texdesc, NULL, &m_diffuseTexture[0]);
 	hr = pd3dDevice->CreateTexture2D( &texdesc, NULL, &m_diffuseTexture[1]);

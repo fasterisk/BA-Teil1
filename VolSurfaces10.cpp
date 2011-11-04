@@ -152,7 +152,7 @@ void InitApp()
 	WCHAR siso[100];
 	StringCchPrintf( siso, 100, L"Grey value:");
 	g_SampleUI.AddStatic(IDC_ISO_VALUE_STATIC, siso, 25, iY += 24, 125, 22);
-	g_SampleUI.AddSlider(IDC_ISO_VALUE, 40, iY += 24, 100, 22);
+	g_SampleUI.AddSlider(IDC_ISO_VALUE, 40, iY += 24, 100, 22, 0, 10000);
 	g_SampleUI.GetStatic(IDC_ISO_VALUE_STATIC)->m_bVisible = false;
 	g_SampleUI.GetSlider(IDC_ISO_VALUE)->m_bVisible = false;
 }
@@ -347,7 +347,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			break;
 		case IDC_ISO_VALUE:
 			int value = g_SampleUI.GetSlider( IDC_ISO_VALUE )->GetValue();
-			g_vsCombinedObj->m_greyValue = value/100.0;
+			g_vsCombinedObj->m_greyValue = value/10000.0;
 			break;
 	}
 }

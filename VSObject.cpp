@@ -298,7 +298,7 @@ void VSObject::ReadVectorFile( char *s, int mode )
 			if(mode == 0)
 				m_curve[i1].cl[i2].col.y = atof(token)/256.0;
 			else if(mode == 1)
-				m_curve[i1].cl[i2].col.y = 255;
+				m_curve[i1].cl[i2].col.y = 1;
 			else if(mode == 2)
 				m_curve[i1].cl[i2].col.y = 0;
 
@@ -308,7 +308,7 @@ void VSObject::ReadVectorFile( char *s, int mode )
 			if(mode == 0)
 				m_curve[i1].cl[i2].col.z = atof(token)/256.0;
 			else if(mode == 1)
-				m_curve[i1].cl[i2].col.z = 255;
+				m_curve[i1].cl[i2].col.z = 1;
 			else if(mode == 2)
 				m_curve[i1].cl[i2].col.z = 0;
 
@@ -323,7 +323,7 @@ void VSObject::ReadVectorFile( char *s, int mode )
 			if(mode == 0)
 				m_curve[i1].cl[i2].col.x = atof(token)/256.0;
 			else if(mode == 1)
-				m_curve[i1].cl[i2].col.x = 255;
+				m_curve[i1].cl[i2].col.x = 1;
 			else if(mode == 2)
 				m_curve[i1].cl[i2].col.x = 0;
 			fgets(buff, 255, F);
@@ -341,7 +341,7 @@ void VSObject::ReadVectorFile( char *s, int mode )
 			if(mode == 0)
 				m_curve[i1].cr[i2].col.y = atof(token)/256.0;
 			else if(mode == 1)
-				m_curve[i1].cr[i2].col.y = 255;
+				m_curve[i1].cr[i2].col.y = 1;
 			else if(mode == 2)
 				m_curve[i1].cr[i2].col.y = 0;
 
@@ -351,7 +351,7 @@ void VSObject::ReadVectorFile( char *s, int mode )
 			if(mode == 0)
 				m_curve[i1].cr[i2].col.z = atof(token)/256.0;
 			else if(mode == 1)
-				m_curve[i1].cr[i2].col.z = 255;
+				m_curve[i1].cr[i2].col.z = 1;
 			else if(mode == 2)
 				m_curve[i1].cr[i2].col.z = 0;
 
@@ -366,7 +366,7 @@ void VSObject::ReadVectorFile( char *s, int mode )
 			if(mode == 0)
 				m_curve[i1].cr[i2].col.x = atof(token)/256.0;
 			else if(mode == 1)
-				m_curve[i1].cr[i2].col.x = 255;
+				m_curve[i1].cr[i2].col.x = 1;
 			else if(mode == 2)
 				m_curve[i1].cr[i2].col.x = 0;
 			fgets(buff, 255, F);
